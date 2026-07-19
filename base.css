@@ -1,0 +1,273 @@
+/* ============================================================
+   Zolyn — Design tokens & base styles
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  /* Color */
+  --ink: #12253E;
+  --ink-soft: #1C3350;
+  --parchment: #F7F3EC;
+  --parchment-deep: #EFE8DA;
+  --gold: #B8863E;
+  --gold-soft: #D9B87A;
+  --slate: #5B6B7F;
+  --slate-light: #8B98A8;
+  --success: #2F6E4F;
+  --alert: #A6392F;
+  --white: #FFFFFF;
+  --line: rgba(18, 37, 62, 0.12);
+
+  /* Type */
+  --font-display: 'Fraunces', serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Radius / shadow */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --shadow-card: 0 1px 2px rgba(18,37,62,0.06), 0 8px 24px rgba(18,37,62,0.08);
+  --shadow-elevated: 0 4px 8px rgba(18,37,62,0.08), 0 16px 40px rgba(18,37,62,0.14);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--parchment);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--ink);
+  margin: 0 0 0.5em 0;
+  letter-spacing: -0.01em;
+}
+
+p { margin: 0 0 1em 0; color: var(--slate); }
+
+a { color: var(--ink); }
+
+button, input, select, textarea {
+  font-family: var(--font-body);
+  font-size: 1rem;
+}
+
+/* Focus visibility — accessibility floor */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* ------------------------------------------------------------
+   Shared components
+   ------------------------------------------------------------ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 22px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  text-decoration: none;
+}
+
+.btn:active { transform: translateY(1px); }
+
+.btn-primary {
+  background: var(--ink);
+  color: var(--parchment);
+}
+.btn-primary:hover { background: var(--ink-soft); box-shadow: var(--shadow-card); }
+.btn-primary:disabled { background: var(--slate-light); cursor: not-allowed; }
+
+.btn-gold {
+  background: var(--gold);
+  color: var(--white);
+}
+.btn-gold:hover { background: #A5793A; box-shadow: var(--shadow-card); }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--line);
+}
+.btn-ghost:hover { background: rgba(18,37,62,0.04); }
+
+.btn-block { width: 100%; }
+
+.field {
+  margin-bottom: 18px;
+}
+
+.field label {
+  display: block;
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 6px;
+  letter-spacing: 0.01em;
+}
+
+.field input, .field select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--white);
+  color: var(--ink);
+  transition: border-color 0.15s ease;
+}
+
+.field input:focus, .field select:focus {
+  border-color: var(--gold);
+  outline: none;
+}
+
+.field-hint {
+  font-size: 0.78rem;
+  color: var(--slate-light);
+  margin-top: 5px;
+}
+
+.field-error {
+  font-size: 0.8rem;
+  color: var(--alert);
+  margin-top: 5px;
+  display: none;
+}
+
+.field.has-error input { border-color: var(--alert); }
+.field.has-error .field-error { display: block; }
+
+.card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 100px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.badge-pending { background: #FBF0DC; color: #8A5E1E; }
+.badge-active { background: #E3F0E8; color: var(--success); }
+.badge-suspended { background: #F6E3E1; color: var(--alert); }
+
+/* Seal / emblem — the signature element */
+.seal {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 25%, var(--gold-soft), var(--gold) 70%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: var(--white);
+  box-shadow: 0 2px 6px rgba(184,134,62,0.35), inset 0 1px 2px rgba(255,255,255,0.4);
+  flex-shrink: 0;
+  position: relative;
+}
+.seal::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.5);
+}
+
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--ink);
+  color: var(--parchment);
+  padding: 14px 22px;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  font-weight: 500;
+  box-shadow: var(--shadow-elevated);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  z-index: 1000;
+  max-width: 90vw;
+  text-align: center;
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.toast.toast-error { background: var(--alert); }
+.toast.toast-success { background: var(--success); }
+
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255,255,255,0.35);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Back button — used consistently across every page */
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  padding: 8px 10px;
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--slate);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: background 0.15s ease, color 0.15s ease;
+  text-decoration: none;
+}
+.back-btn:hover {
+  background: rgba(18,37,62,0.05);
+  color: var(--ink);
+}
+.back-btn svg { flex-shrink: 0; }

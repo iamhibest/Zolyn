@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Students — Zolyn</title>
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="dashboard.css">
+<style>
+  .page-actions { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+  .filter-select {
+    padding: 10px 14px; border: 1.5px solid var(--line); border-radius: var(--radius-sm);
+    background: var(--white); font-size: 0.88rem; color: var(--ink); min-width: 160px;
+  }
+
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(18,37,62,0.45);
+    display: none;
+    align-items: center; justify-content: center;
+    padding: 20px;
+    z-index: 200;
+    overflow-y: auto;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal-box {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: 28px 24px;
+    width: 100%; max-width: 480px;
+    box-shadow: var(--shadow-elevated);
+    max-height: 90vh;
+    overflow-y: auto;
+    margin: auto;
+  }
+  .modal-box h3 { font-size: 1.15rem; margin-bottom: 4px; }
+  .modal-box .modal-sub { font-size: 0.85rem; color: var(--slate); margin-bottom: 18px; }
+  .modal-actions { display: flex; gap: 10px; margin-top: 22px; }
+  .modal-actions .btn { flex: 1; }
+
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .field-section-label {
+    font-size: 0.75rem; font-weight: 700; color: var(--slate-light);
+    text-transform: uppercase; letter-spacing: 0.04em;
+    margin: 20px 0 12px; padding-top: 16px; border-top: 1px solid var(--line);
+  }
+  .field-section-label:first-child { margin-top: 0; padding-top: 0; border-top: none; }
+
+  .class-badge {
+    font-size: 0.75rem; font-weight: 600; color: var(--gold);
+    background: var(--parchment-deep); padding: 3px 9px; border-radius: 100px;
+    display: inline-block;
+  }
+  .class-badge.unassigned { color: var(--slate-light); }
+</style>
+</head>
+<body>
+<div class="dash-shell">
+  <aside class="dash-sidebar">
+    <div class="dash-brand"><div class="seal">Z</div><div class="dash-brand-name">Zolyn</div></div>
+    <nav class="dash-nav">
+      <a href="dashboard-school-admin.html">Overview</a>
+      <a href="dashboard-school-admin-profile.html">School profile</a>
+      <a href="dashboard-school-admin-students.html" class="active">Students</a>
+      <a href="dashboard-school-admin-teachers.html">Teachers</a>
+      <a href="dashboard-school-admin-teacher-admins.html">Teacher admins</a>
+      <a href="dashboard-school-admin-classes.html">Classes</a>
+      <a href="dashboard-school-admin-subjects.html">Subjects</a>
+      <a href="dashboard-school-admin-attendance.html">Attendance</a>
+      <a href="dashboard-school-admin-results.html">Results</a>
+      <a href="dashboard-school-admin-report-cards.html">Report cards</a>
+      <a href="dashboard-school-admin-pending-approvals.html">Pending requests</a>
+    </nav>
+    <div class="dash-user">
+      <div class="dash-user-name" id="sidebarUserName">—</div>
+      <div class="dash-user-role">School Admin</div>
+      <button class="dash-logout" id="logoutBtn">Log out</button>
+    </div>
+  </aside>
+
+  <main class="dash-main">
+    <div class="dash-topbar">
+      <div style="display:flex;align-items:center;gap:4px;">
+        <button class="menu-btn" id="mobileMenuBtn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg></button>
+        <button class="back-btn" id="backBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>Back</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div class="seal">Z</div>
+        <button class="dash-logout" id="logoutBtnMobile">Log out</button>
+      </div>
+    </div>
+
+    <div class="mobile-nav-overlay" id="mobileNavOverlay">
+      <div class="mobile-nav-panel">
+        <button class="mobile-nav-close" id="mobileNavClose"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+        <div class="dash-brand"><div class="seal">Z</div><div class="dash-brand-name">Zolyn</div></div>
+        <nav class="dash-nav">
+      <a href="dashboard-school-admin.html">Overview</a>
+      <a href="dashboard-school-admin-profile.html">School profile</a>
+      <a href="dashboard-school-admin-students.html">Students</a>
+      <a href="dashboard-school-admin-teachers.html">Teachers</a>
+      <a href="dashboard-school-admin-teacher-admins.html">Teacher admins</a>
+      <a href="dashboard-school-admin-classes.html">Classes</a>
+      <a href="dashboard-school-admin-subjects.html">Subjects</a>
+      <a href="dashboard-school-admin-attendance.html">Attendance</a>
+      <a href="dashboard-school-admin-results.html">Results</a>
+      <a href="dashboard-school-admin-report-cards.html">Report cards</a>
+      <a href="dashboard-school-admin-pending-approvals.html">Pending requests</a>
+        </nav>
+        <div class="dash-user">
+          <div class="dash-user-name" id="mobileSidebarUserName">—</div>
+          <div class="dash-user-role">School Admin</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dash-content">
+      <div class="dash-page-head">
+        <h1>Students</h1>
+        <p>Register students and assign them to a class.</p>
+      </div>
+
+      <div class="page-actions">
+        <select class="filter-select" id="classFilter">
+          <option value="">All classes</option>
+        </select>
+        <button class="btn btn-primary" id="addStudentBtn">+ Add student</button>
+      </div>
+
+      <div class="card list-card">
+        <div id="studentsList">
+          <div class="empty-state">Loading…</div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Add/Edit Modal -->
+<div class="modal-overlay" id="studentModal">
+  <div class="modal-box">
+    <h3 id="modalTitle">Add a student</h3>
+    <div class="modal-sub">Fill in the student's details below.</div>
+    <form id="studentForm" novalidate>
+
+      <div class="field" id="fullNameField">
+        <label for="fullName">Full name</label>
+        <input type="text" id="fullName" placeholder="Student's full name" required>
+        <div class="field-error">Enter the student's full name.</div>
+      </div>
+
+      <div class="field-row">
+        <div class="field" id="admissionNoField">
+          <label for="admissionNo">Admission no.</label>
+          <input type="text" id="admissionNo" placeholder="Optional">
+        </div>
+        <div class="field" id="classField">
+          <label for="classSelect">Class</label>
+          <select id="classSelect">
+            <option value="">Unassigned</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field-section-label">Guardian details (optional)</div>
+
+      <div class="field" id="guardianNameField">
+        <label for="guardianName">Guardian's name</label>
+        <input type="text" id="guardianName" placeholder="Parent or guardian name">
+      </div>
+
+      <div class="field-row">
+        <div class="field" id="guardianPhoneField">
+          <label for="guardianPhone">Guardian's phone</label>
+          <input type="tel" id="guardianPhone" placeholder="0803 000 0000">
+        </div>
+        <div class="field" id="guardianEmailField">
+          <label for="guardianEmail">Guardian's email</label>
+          <input type="email" id="guardianEmail" placeholder="Optional">
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" id="cancelModalBtn">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="saveStudentBtn">
+          <span class="btn-label">Save student</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+  import { requireRole } from './rbac.js';
+  import { logOut } from './auth.js';
+  import { supabase } from './supabaseClient.js';
+  import { wireBackButton } from './nav.js';
+  import { wireMobileNav } from './mobile-nav.js';
+  import { getStudents, createStudent, updateStudent, deleteStudent } from './students.service.js';
+  import { getClasses } from './classes.service.js';
+
+  let mySchool = null;
+  let editingStudentId = null;
+  let allClasses = [];
+
+  function showToast(message, type = '') {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.className = 'toast show' + (type ? ' toast-' + type : '');
+    setTimeout(() => { toast.classList.remove('show'); }, 4000);
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function initials(name) {
+    return (name || '?').split(' ').filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+  }
+
+  (async () => {
+    const profile = await requireRole('school_admin');
+    if (!profile) return;
+
+    const { data: { user } } = await supabase.auth.getUser();
+    const { data: userProfile } = await supabase.from('user_profiles').select('full_name').eq('id', user.id).single();
+    document.getElementById('sidebarUserName').textContent = userProfile?.full_name || 'School Admin';
+    document.getElementById('mobileSidebarUserName').textContent = userProfile?.full_name || 'School Admin';
+    wireBackButton('backBtn', 'dashboard-school-admin.html');
+    wireMobileNav();
+
+    const membership = profile.memberships.find(m => m.role === 'school_admin');
+    mySchool = membership?.schools;
+
+    await loadClassOptions();
+    loadStudents();
+  })();
+
+  async function loadClassOptions() {
+    if (!mySchool) return;
+    const { classes } = await getClasses(mySchool.id);
+    allClasses = classes || [];
+
+    const filterSelect = document.getElementById('classFilter');
+    const formSelect = document.getElementById('classSelect');
+
+    const optionsHtml = allClasses.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
+
+    filterSelect.innerHTML = `<option value="">All classes</option>` + optionsHtml;
+    formSelect.innerHTML = `<option value="">Unassigned</option>` + optionsHtml;
+  }
+
+  document.getElementById('classFilter').addEventListener('change', loadStudents);
+
+  async function loadStudents() {
+    const listEl = document.getElementById('studentsList');
+    if (!mySchool) return;
+
+    const filterValue = document.getElementById('classFilter').value || null;
+    const { students, error } = await getStudents(mySchool.id, filterValue);
+
+    if (error) {
+      listEl.innerHTML = `<div class="empty-state">Could not load students. Try refreshing.</div>`;
+      return;
+    }
+
+    if (!students || students.length === 0) {
+      listEl.innerHTML = `<div class="empty-state">No students yet. Tap "+ Add student" to register your first one.</div>`;
+      return;
+    }
+
+    listEl.innerHTML = students.map(s => `
+      <div class="list-row" data-id="${s.id}">
+        <div class="list-row-avatar">${s.passport_url ? `<img src="${s.passport_url}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">` : initials(s.full_name)}</div>
+        <div class="list-row-info">
+          <h4>${escapeHtml(s.full_name)}</h4>
+          <p>
+            ${s.admission_no ? escapeHtml(s.admission_no) + ' · ' : ''}
+            <span class="class-badge ${s.classes ? '' : 'unassigned'}">${s.classes ? escapeHtml(s.classes.name) : 'Unassigned'}</span>
+          </p>
+        </div>
+        <div class="list-row-actions">
+          <button class="btn btn-ghost edit-btn" data-id="${s.id}">Edit</button>
+          <button class="btn btn-ghost delete-btn" data-id="${s.id}" style="color: var(--alert);">Delete</button>
+        </div>
+      </div>
+    `).join('');
+
+    listEl.querySelectorAll('.edit-btn').forEach(btn => {
+      const student = students.find(s => s.id === btn.dataset.id);
+      btn.addEventListener('click', () => openModal(student));
+    });
+    listEl.querySelectorAll('.delete-btn').forEach(btn => {
+      btn.addEventListener('click', () => handleDelete(btn.dataset.id));
+    });
+  }
+
+  function openModal(student = null) {
+    editingStudentId = student?.id || null;
+    document.getElementById('modalTitle').textContent = student ? 'Edit student' : 'Add a student';
+
+    document.getElementById('fullName').value = student?.full_name || '';
+    document.getElementById('admissionNo').value = student?.admission_no || '';
+    document.getElementById('classSelect').value = student?.class_id || '';
+    document.getElementById('guardianName').value = student?.guardian_name || '';
+    document.getElementById('guardianPhone').value = student?.guardian_phone || '';
+    document.getElementById('guardianEmail').value = student?.guardian_email || '';
+
+    document.getElementById('fullNameField').classList.remove('has-error');
+    document.getElementById('studentModal').classList.add('show');
+  }
+
+  function closeModal() {
+    document.getElementById('studentModal').classList.remove('show');
+    document.getElementById('studentForm').reset();
+    editingStudentId = null;
+  }
+
+  document.getElementById('addStudentBtn').addEventListener('click', () => openModal());
+  document.getElementById('cancelModalBtn').addEventListener('click', closeModal);
+  document.getElementById('studentModal').addEventListener('click', (e) => {
+    if (e.target.id === 'studentModal') closeModal();
+  });
+
+  document.getElementById('studentForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const fullName = document.getElementById('fullName').value.trim();
+
+    if (!fullName) {
+      document.getElementById('fullNameField').classList.add('has-error');
+      return;
+    }
+    document.getElementById('fullNameField').classList.remove('has-error');
+
+    const studentData = {
+      fullName,
+      admissionNo: document.getElementById('admissionNo').value.trim(),
+      classId: document.getElementById('classSelect').value || null,
+      guardianName: document.getElementById('guardianName').value.trim(),
+      guardianPhone: document.getElementById('guardianPhone').value.trim(),
+      guardianEmail: document.getElementById('guardianEmail').value.trim(),
+    };
+
+    const btn = document.getElementById('saveStudentBtn');
+    btn.disabled = true;
+    btn.querySelector('.btn-label').textContent = 'Saving…';
+
+    const result = editingStudentId
+      ? await updateStudent(editingStudentId, studentData)
+      : await createStudent(mySchool.id, studentData);
+
+    btn.disabled = false;
+    btn.querySelector('.btn-label').textContent = 'Save student';
+
+    if (result.error) {
+      showToast(result.error.message || 'Could not save student.', 'error');
+      return;
+    }
+
+    showToast(editingStudentId ? 'Student updated.' : 'Student registered.', 'success');
+    closeModal();
+    loadStudents();
+  });
+
+  async function handleDelete(studentId) {
+    if (!confirm('Delete this student record? This cannot be undone.')) return;
+
+    const { error } = await deleteStudent(studentId);
+    if (error) {
+      showToast('Could not delete this student.', 'error');
+      return;
+    }
+    showToast('Student deleted.', 'success');
+    loadStudents();
+  }
+
+  async function handleLogout() { await logOut(); window.location.href = 'index.html'; }
+  document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+  document.getElementById('logoutBtnMobile').addEventListener('click', handleLogout);
+</script>
+</body>
+</html>

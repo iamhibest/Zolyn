@@ -1,0 +1,156 @@
+/* ============================================================
+   Zolyn — Dashboard shell styles (shared across all roles)
+   ============================================================ */
+
+.dash-shell {
+  min-height: 100vh;
+  display: flex;
+}
+
+.dash-sidebar {
+  width: 240px;
+  background: var(--ink);
+  color: var(--parchment);
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+@media (max-width: 800px) {
+  .dash-sidebar { display: none; }
+}
+
+.dash-brand { display: flex; align-items: center; gap: 10px; padding: 0 8px 28px; }
+.dash-brand .seal { width: 34px; height: 34px; font-size: 0.95rem; }
+.dash-brand-name { font-family: var(--font-display); font-weight: 600; font-size: 1.05rem; }
+
+.dash-nav { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+.dash-nav a {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 12px;
+  border-radius: var(--radius-sm);
+  color: rgba(247,243,236,0.7);
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 500;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.dash-nav a:hover { background: rgba(247,243,236,0.06); color: var(--parchment); }
+.dash-nav a.active { background: rgba(184,134,62,0.18); color: var(--gold-soft); font-weight: 600; }
+
+.dash-user {
+  padding: 14px 12px;
+  border-top: 1px solid rgba(247,243,236,0.12);
+  margin-top: 12px;
+}
+.dash-user-name { font-size: 0.85rem; font-weight: 600; color: var(--parchment); margin-bottom: 2px; }
+.dash-user-role { font-size: 0.72rem; color: var(--slate-light); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 10px; }
+.dash-logout {
+  background: none; border: none; color: var(--alert);
+  font-size: 0.8rem; font-weight: 600; cursor: pointer; text-decoration: underline;
+  padding: 0; font-family: var(--font-body);
+  transition: opacity 0.15s ease;
+}
+.dash-logout:hover { opacity: 0.75; }
+
+/* On the dark sidebar, use a softer coral so it reads clearly against navy */
+.dash-sidebar .dash-logout { color: #E8998C; }
+.dash-sidebar .dash-logout:hover { color: #F2B7AD; opacity: 1; }
+
+.dash-main { flex: 1; min-width: 0; }
+
+.dash-topbar {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: var(--white);
+  border-bottom: 1px solid var(--line);
+}
+@media (max-width: 800px) {
+  .dash-topbar { display: flex; }
+}
+.dash-topbar .seal { width: 32px; height: 32px; font-size: 0.9rem; }
+
+.dash-content { padding: 32px; max-width: 1100px; }
+@media (max-width: 800px) {
+  .dash-content { padding: 20px 16px; }
+}
+
+/* Mobile menu button + slide-in nav overlay */
+.menu-btn {
+  background: none; border: none; padding: 6px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--ink); border-radius: var(--radius-sm);
+}
+.menu-btn:hover { background: rgba(18,37,62,0.05); }
+
+.mobile-nav-overlay {
+  position: fixed; inset: 0;
+  background: rgba(18,37,62,0.5);
+  z-index: 300;
+  display: none;
+}
+.mobile-nav-overlay.show { display: block; }
+
+.mobile-nav-panel {
+  position: fixed; top: 0; left: 0; bottom: 0;
+  width: 78vw; max-width: 300px;
+  background: var(--ink);
+  color: var(--parchment);
+  padding: 24px 16px;
+  display: flex; flex-direction: column;
+  transform: translateX(-100%);
+  transition: transform 0.25s ease;
+  overflow-y: auto;
+}
+.mobile-nav-overlay.show .mobile-nav-panel { transform: translateX(0); }
+
+.mobile-nav-close {
+  align-self: flex-end;
+  background: none; border: none; color: rgba(247,243,236,0.7);
+  padding: 6px; cursor: pointer; margin-bottom: 8px;
+}
+
+.mobile-nav-panel .dash-brand { padding: 0 8px 20px; }
+.mobile-nav-panel .dash-nav { margin-bottom: 12px; }
+.mobile-nav-panel .dash-user { margin-top: auto; }
+
+.dash-page-head { margin-bottom: 28px; }
+.dash-page-head h1 { font-size: 1.5rem; margin-bottom: 4px; }
+.dash-page-head p { font-size: 0.9rem; margin: 0; }
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.stat-card { padding: 20px; }
+.stat-card .stat-label { font-size: 0.78rem; color: var(--slate); font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 8px; }
+.stat-card .stat-value { font-family: var(--font-display); font-size: 1.8rem; font-weight: 600; color: var(--ink); }
+
+.list-card { padding: 4px; }
+.list-card-head { padding: 18px 20px 14px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; }
+.list-card-head h3 { font-size: 1.02rem; margin: 0; }
+
+.list-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--line);
+}
+.list-row:last-child { border-bottom: none; }
+.list-row-avatar {
+  width: 38px; height: 38px; border-radius: 8px;
+  background: var(--parchment-deep);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-weight: 700; color: var(--ink);
+  flex-shrink: 0; font-size: 0.85rem;
+}
+.list-row-info { flex: 1; min-width: 0; }
+.list-row-info h4 { font-size: 0.92rem; margin: 0 0 2px; font-weight: 600; color: var(--ink); }
+.list-row-info p { font-size: 0.8rem; margin: 0; }
+.list-row-actions { display: flex; gap: 8px; flex-shrink: 0; }
+.list-row-actions .btn { padding: 8px 14px; font-size: 0.82rem; }
+
+.empty-state { text-align: center; padding: 44px 20px; color: var(--slate-light); font-size: 0.88rem; }

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Dashboard — Zolyn</title>
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+<div class="dash-shell">
+  <aside class="dash-sidebar">
+    <div class="dash-brand"><div class="seal">Z</div><div class="dash-brand-name">Zolyn</div></div>
+    <nav class="dash-nav">
+      <a href="dashboard-teacher.html" class="active">Overview</a>
+      <a href="my-classes.html">My classes</a>
+      <a href="enter-scores.html">Enter scores</a>
+      <a href="attendance.html">Attendance</a>
+    </nav>
+    <div class="dash-user">
+      <div class="dash-user-name" id="sidebarUserName">—</div>
+      <div class="dash-user-role">Teacher</div>
+      <button class="dash-logout" id="logoutBtn">Log out</button>
+    </div>
+  </aside>
+
+  <main class="dash-main">
+    <div class="dash-topbar">
+      <button class="menu-btn" id="mobileMenuBtn"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg></button>
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div class="seal">Z</div>
+        <button class="dash-logout" id="logoutBtnMobile">Log out</button>
+      </div>
+    </div>
+
+    <div class="mobile-nav-overlay" id="mobileNavOverlay">
+      <div class="mobile-nav-panel">
+        <button class="mobile-nav-close" id="mobileNavClose"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+        <div class="dash-brand"><div class="seal">Z</div><div class="dash-brand-name">Zolyn</div></div>
+        <nav class="dash-nav">
+      <a href="dashboard-teacher.html" class="active">Overview</a>
+      <a href="my-classes.html">My classes</a>
+      <a href="enter-scores.html">Enter scores</a>
+      <a href="attendance.html">Attendance</a>
+        </nav>
+        <div class="dash-user">
+          <div class="dash-user-name" id="mobileSidebarUserName">—</div>
+          <div class="dash-user-role">Teacher</div>
+        </div>
+      </div>
+    </div>
+    <div class="dash-content">
+      <div class="dash-page-head">
+        <h1>Welcome back</h1>
+        <p>Your assigned classes and subjects will appear here once your School Admin sets them up.</p>
+      </div>
+
+      <div class="card list-card">
+        <div class="list-card-head"><h3>Your assignments</h3></div>
+        <div id="assignmentsList">
+          <div class="empty-state">Loading…</div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script type="module">
+  import { requireRole } from './rbac.js';
+  import { wireMobileNav } from './mobile-nav.js';
+  import { logOut } from './auth.js';
+  import { supabase } from './supabaseClient.js';
+
+  (async () => {
+    const profile = await requireRole('teacher');
+    if (!profile) return;
+
+    const { data: { user } } = await supabase.auth.getUser();
+    const { data: userProfile } = await supabase.from('user_profiles').select('full_name').eq('id', user.id).single();
+    document.getElementById('sidebarUserName').textContent = userProfile?.full_name || 'Teacher';
+    document.getElementById('mobileSidebarUserName').textContent = userProfile?.full_name || 'Teacher';
+    wireMobileNav();
+
+    loadAssignments(user.id);
+  })();
+
+  async function loadAssignments(userId) {
+    const listEl = document.getElementById('assignmentsList');
+
+    const { data, error } = await supabase
+      .from('teacher_subject_class')
+      .select('id, subjects(name), classes(name)')
+      .eq('teacher_id', userId);
+
+    if (error) {
+      listEl.innerHTML = `<div class="empty-state">Could not load your assignments.</div>`;
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      listEl.innerHTML = `<div class="empty-state">No classes or subjects assigned yet. Your School Admin will set these up.</div>`;
+      return;
+    }
+
+    listEl.innerHTML = data.map(a => `
+      <div class="list-row">
+        <div class="list-row-avatar">${(a.subjects?.name || '?')[0]}</div>
+        <div class="list-row-info">
+          <h4>${a.subjects?.name || 'Subject'}</h4>
+          <p>${a.classes?.name || 'Class'}</p>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  async function handleLogout() { await logOut(); window.location.href = 'index.html'; }
+  document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+  document.getElementById('logoutBtnMobile').addEventListener('click', handleLogout);
+</script>
+</body>
+</html>

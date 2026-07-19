@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Register Your School — Zolyn</title>
+<link rel="stylesheet" href="base.css">
+<style>
+  .topbar {
+    display: flex; align-items: center; gap: 12px;
+    padding: 20px 24px;
+    background: var(--white);
+    border-bottom: 1px solid var(--line);
+  }
+  .back-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 0.85rem; color: var(--slate); text-decoration: none;
+  }
+  .topbar .seal { width: 34px; height: 34px; font-size: 0.95rem; margin-left: auto; }
+
+  .wrap { max-width: 560px; margin: 0 auto; padding: 44px 24px 80px; }
+
+  .page-head { margin-bottom: 32px; }
+  .page-head .eyebrow {
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em;
+    color: var(--gold); text-transform: uppercase; margin-bottom: 10px; display: block;
+  }
+  .page-head h1 { font-size: 1.6rem; margin-bottom: 8px; }
+
+  .form-card { padding: 32px 28px; }
+
+  .status-note {
+    display: flex; gap: 12px;
+    padding: 16px;
+    background: var(--parchment-deep);
+    border-radius: var(--radius-sm);
+    margin-bottom: 28px;
+    font-size: 0.85rem;
+  }
+  .status-note .mark { color: var(--gold); font-weight: 700; }
+
+  .success-panel { text-align: center; padding: 48px 24px; }
+  .success-panel .seal { margin: 0 auto 20px; width: 64px; height: 64px; font-size: 1.8rem; }
+  .success-panel h2 { font-size: 1.4rem; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="guest-home.html" class="back-link">← Back</a>
+  <div class="seal">Z</div>
+</div>
+
+<div class="wrap">
+
+  <div id="formView">
+    <div class="page-head">
+      <span class="eyebrow">New school</span>
+      <h1>Register your school</h1>
+      <p>Tell us about your school. You'll be its School Admin as soon as it's approved.</p>
+    </div>
+
+    <div class="card form-card">
+      <div class="status-note">
+        <span class="mark">ⓘ</span>
+        <span>New schools are reviewed before going live on Zolyn. You can start setting things up right away, but it may take a short while before you're fully approved.</span>
+      </div>
+
+      <form id="registerFormEl" novalidate>
+        <div class="field" id="nameField">
+          <label for="schoolName">School name</label>
+          <input type="text" id="schoolName" placeholder="e.g. Hibest Academy" required>
+          <div class="field-error">Enter your school's name.</div>
+        </div>
+
+        <div class="field" id="addressField">
+          <label for="schoolAddress">School address</label>
+          <input type="text" id="schoolAddress" placeholder="Street, city, state" required>
+          <div class="field-error">Enter your school's address.</div>
+        </div>
+
+        <div class="field" id="phoneField">
+          <label for="schoolPhone">Contact phone number</label>
+          <input type="tel" id="schoolPhone" placeholder="e.g. 0803 000 0000" required>
+          <div class="field-error">Enter a contact phone number.</div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" id="submitBtn">
+          <span class="btn-label">Register school</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div id="successView" style="display:none;">
+    <div class="card success-panel">
+      <div class="seal">Z</div>
+      <h2>School registered</h2>
+      <p>Your school has been created and is awaiting approval. You already have full access to start setting things up as School Admin.</p>
+      <a href="dashboard-school-admin.html" class="btn btn-primary" style="margin-top:12px;">Go to your dashboard</a>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+  import { registerSchool } from './schools.service.js';
+  import { getAccessProfile, resolveLandingRoute } from './rbac.js';
+
+  function showToast(message, type = '') {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.className = 'toast show' + (type ? ' toast-' + type : '');
+    setTimeout(() => { toast.classList.remove('show'); }, 4000);
+  }
+
+  function setFieldError(fieldId, hasError) {
+    document.getElementById(fieldId).classList.toggle('has-error', hasError);
+  }
+
+  // Guard: must be logged in
+  (async () => {
+    const profile = await getAccessProfile();
+    if (!profile) {
+      window.location.href = 'index.html';
+    }
+  })();
+
+  document.getElementById('registerFormEl').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = document.getElementById('schoolName').value.trim();
+    const address = document.getElementById('schoolAddress').value.trim();
+    const phone = document.getElementById('schoolPhone').value.trim();
+
+    setFieldError('nameField', !name);
+    setFieldError('addressField', !address);
+    setFieldError('phoneField', !phone);
+    if (!name || !address || !phone) return;
+
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.querySelector('.btn-label').textContent = 'Registering…';
+
+    const { error } = await registerSchool({ name, address, phone });
+
+    btn.disabled = false;
+    btn.querySelector('.btn-label').textContent = 'Register school';
+
+    if (error) {
+      showToast(error.message || 'Could not register your school. Try again.', 'error');
+      return;
+    }
+
+    document.getElementById('formView').style.display = 'none';
+    document.getElementById('successView').style.display = 'block';
+  });
+</script>
+
+</body>
+</html>

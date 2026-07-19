@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Classes — Zolyn</title>
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="dashboard.css">
+<style>
+  .page-actions { display: flex; justify-content: flex-end; margin-bottom: 20px; }
+
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(18,37,62,0.45);
+    display: none;
+    align-items: center; justify-content: center;
+    padding: 20px;
+    z-index: 200;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal-box {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: 28px 24px;
+    width: 100%; max-width: 400px;
+    box-shadow: var(--shadow-elevated);
+  }
+  .modal-box h3 { font-size: 1.15rem; margin-bottom: 18px; }
+  .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+  .modal-actions .btn { flex: 1; }
+
+  .class-count { font-size: 0.78rem; color: var(--slate-light); }
+</style>
+</head>
+<body>
+<div class="dash-shell">
+  <aside class="dash-sidebar">
+    <div class="dash-brand"><div class="seal">Z</div><div class="dash-brand-name">Zolyn</div></div>
+    <nav class="dash-nav">
+      <a href="dashboard-school-admin.html">Overview</a>
+      <a href="dashboard-school-admin-profile.html">School profile</a>
+      <a href="dashboard-school-admin-students.html">Students</a>
+      <a href="dashboard-school-admin-teachers.html">Teachers</a>
+      <a href="dashboard-school-admin-teacher-admins.html">Teacher admins</a>
+      <a href="dashboard-school-admin-classes.html" class="active">Classes</a>
+      <a href="dashboard-school-admin-subjects.html">Subjects</a>
+      <a href="dashboard-school-admin-attendance.html">Attendance</a>
+      <a href="dashboard-school-admin-results.html">Results</a>
+      <a href="dashboard-school-admin-report-cards.html">Report cards</a>
+      <a href="dashboard-school-admin-pending-approvals.html">Pending requests</a>
+    </nav>
+    <div class="dash-user">
+      <div class="dash-user-name" id="sidebarUserName">—</div>
+      <div class="dash-user-role">School Admin</div>
+      <button class="dash-logout" id="logoutBtn">Log out</button>
+    </div>
+  </aside>
+
+  <main class="dash-main">
+    <div class="dash-topbar">
+      <div style="display:flex;align-items:center;gap:4px;">
+        <button class="menu-btn" id="mobileMenuBtn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg></button>
+        <button class="back-btn" id="backBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>Back</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div class="seal">Z</div>
+        <button class="dash-logout" id="logoutBtnMobile">Log out</button>
+      </div>
+    </div>
+
+    <div class="mobile-nav-overlay" id="mobileNavOverlay">
+      <div class="mobile-nav-panel">
+        <button class="mobile-nav-close" id="mobileNavClose"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+        <div class="dash-brand"><div class="seal">Z</div><div class="dash-brand-name">Zolyn</div></div>
+        <nav class="dash-nav">
+      <a href="dashboard-school-admin.html">Overview</a>
+      <a href="dashboard-school-admin-profile.html">School profile</a>
+      <a href="dashboard-school-admin-students.html">Students</a>
+      <a href="dashboard-school-admin-teachers.html">Teachers</a>
+      <a href="dashboard-school-admin-teacher-admins.html">Teacher admins</a>
+      <a href="dashboard-school-admin-classes.html">Classes</a>
+      <a href="dashboard-school-admin-subjects.html">Subjects</a>
+      <a href="dashboard-school-admin-attendance.html">Attendance</a>
+      <a href="dashboard-school-admin-results.html">Results</a>
+      <a href="dashboard-school-admin-report-cards.html">Report cards</a>
+      <a href="dashboard-school-admin-pending-approvals.html">Pending requests</a>
+        </nav>
+        <div class="dash-user">
+          <div class="dash-user-name" id="mobileSidebarUserName">—</div>
+          <div class="dash-user-role">School Admin</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dash-content">
+      <div class="dash-page-head">
+        <h1>Classes</h1>
+        <p>Set up the classes students and teachers will be organized into.</p>
+      </div>
+
+      <div class="page-actions">
+        <button class="btn btn-primary" id="addClassBtn">+ Add class</button>
+      </div>
+
+      <div class="card list-card">
+        <div id="classesList">
+          <div class="empty-state">Loading…</div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Add/Edit Modal -->
+<div class="modal-overlay" id="classModal">
+  <div class="modal-box">
+    <h3 id="modalTitle">Add a class</h3>
+    <form id="classForm" novalidate>
+      <div class="field" id="classNameField">
+        <label for="className">Class name</label>
+        <input type="text" id="className" placeholder="e.g. JSS 1A" required>
+        <div class="field-error">Enter a class name.</div>
+      </div>
+      <div class="field" id="classTeacherField">
+        <label for="classTeacherSelect">Class teacher (optional)</label>
+        <select id="classTeacherSelect">
+          <option value="">No class teacher assigned</option>
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" id="cancelModalBtn">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="saveClassBtn">
+          <span class="btn-label">Save class</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+  import { requireRole } from './rbac.js';
+  import { logOut } from './auth.js';
+  import { supabase } from './supabaseClient.js';
+  import { wireBackButton } from './nav.js';
+  import { wireMobileNav } from './mobile-nav.js';
+  import { getClasses, createClass, updateClass, deleteClass, getSchoolTeachers } from './classes.service.js';
+
+  let mySchool = null;
+  let editingClassId = null;
+
+  function showToast(message, type = '') {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.className = 'toast show' + (type ? ' toast-' + type : '');
+    setTimeout(() => { toast.classList.remove('show'); }, 4000);
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function initials(name) {
+    return (name || '?').split(' ').filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+  }
+
+  (async () => {
+    const profile = await requireRole('school_admin');
+    if (!profile) return;
+
+    const { data: { user } } = await supabase.auth.getUser();
+    const { data: userProfile } = await supabase.from('user_profiles').select('full_name').eq('id', user.id).single();
+    document.getElementById('sidebarUserName').textContent = userProfile?.full_name || 'School Admin';
+    document.getElementById('mobileSidebarUserName').textContent = userProfile?.full_name || 'School Admin';
+    wireBackButton('backBtn', 'dashboard-school-admin.html');
+    wireMobileNav();
+
+    const membership = profile.memberships.find(m => m.role === 'school_admin');
+    mySchool = membership?.schools;
+
+    await loadTeacherOptions();
+    loadClasses();
+  })();
+
+  async function loadTeacherOptions() {
+    if (!mySchool) return;
+    const { teachers, error } = await getSchoolTeachers(mySchool.id);
+    if (error || !teachers) return;
+
+    const select = document.getElementById('classTeacherSelect');
+    select.innerHTML = `<option value="">No class teacher assigned</option>` +
+      teachers.map(t => `<option value="${t.user_id}">${escapeHtml(t.user_profiles?.full_name || 'Unnamed staff member')}</option>`).join('');
+  }
+
+  async function loadClasses() {
+    const listEl = document.getElementById('classesList');
+    if (!mySchool) return;
+
+    const { classes, error } = await getClasses(mySchool.id);
+
+    if (error) {
+      listEl.innerHTML = `<div class="empty-state">Could not load classes. Try refreshing.</div>`;
+      return;
+    }
+
+    if (!classes || classes.length === 0) {
+      listEl.innerHTML = `<div class="empty-state">No classes yet. Tap "+ Add class" to create your first one.</div>`;
+      return;
+    }
+
+    listEl.innerHTML = classes.map(c => `
+      <div class="list-row" data-id="${c.id}">
+        <div class="list-row-avatar">${initials(c.name)}</div>
+        <div class="list-row-info">
+          <h4>${escapeHtml(c.name)}</h4>
+          <p class="class-count">${c.students?.[0]?.count ?? 0} student${(c.students?.[0]?.count ?? 0) === 1 ? '' : 's'}${c.teacher_name ? ' · ' + escapeHtml(c.teacher_name) : ' · No class teacher'}</p>
+        </div>
+        <div class="list-row-actions">
+          <button class="btn btn-ghost edit-btn" data-id="${c.id}" data-name="${escapeHtml(c.name)}" data-teacher="${c.class_teacher_id || ''}">Edit</button>
+          <button class="btn btn-ghost delete-btn" data-id="${c.id}" style="color: var(--alert);">Delete</button>
+        </div>
+      </div>
+    `).join('');
+
+    listEl.querySelectorAll('.edit-btn').forEach(btn => {
+      btn.addEventListener('click', () => openModal(btn.dataset.id, btn.dataset.name, btn.dataset.teacher));
+    });
+    listEl.querySelectorAll('.delete-btn').forEach(btn => {
+      btn.addEventListener('click', () => handleDelete(btn.dataset.id));
+    });
+  }
+
+  function openModal(classId = null, currentName = '', currentTeacherId = '') {
+    editingClassId = classId;
+    document.getElementById('modalTitle').textContent = classId ? 'Rename class' : 'Add a class';
+    document.getElementById('className').value = currentName;
+    document.getElementById('classTeacherSelect').value = currentTeacherId || '';
+    document.getElementById('classNameField').classList.remove('has-error');
+    document.getElementById('classModal').classList.add('show');
+    document.getElementById('className').focus();
+  }
+
+  function closeModal() {
+    document.getElementById('classModal').classList.remove('show');
+    editingClassId = null;
+  }
+
+  document.getElementById('addClassBtn').addEventListener('click', () => openModal());
+  document.getElementById('cancelModalBtn').addEventListener('click', closeModal);
+  document.getElementById('classModal').addEventListener('click', (e) => {
+    if (e.target.id === 'classModal') closeModal();
+  });
+
+  document.getElementById('classForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = document.getElementById('className').value.trim();
+
+    if (!name) {
+      document.getElementById('classNameField').classList.add('has-error');
+      return;
+    }
+
+    const btn = document.getElementById('saveClassBtn');
+    btn.disabled = true;
+    btn.querySelector('.btn-label').textContent = 'Saving…';
+
+    const teacherId = document.getElementById('classTeacherSelect').value || null;
+
+    const result = editingClassId
+      ? await updateClass(editingClassId, name, teacherId)
+      : await createClass(mySchool.id, name, teacherId);
+
+    btn.disabled = false;
+    btn.querySelector('.btn-label').textContent = 'Save class';
+
+    if (result.error) {
+      showToast(result.error.message || 'Could not save class.', 'error');
+      return;
+    }
+
+    showToast(editingClassId ? 'Class updated.' : 'Class created.', 'success');
+    closeModal();
+    loadClasses();
+  });
+
+  async function handleDelete(classId) {
+    if (!confirm('Delete this class? This cannot be undone. Classes with students assigned cannot be deleted.')) return;
+
+    const { error } = await deleteClass(classId);
+    if (error) {
+      showToast('Could not delete this class. It may still have students assigned to it.', 'error');
+      return;
+    }
+    showToast('Class deleted.', 'success');
+    loadClasses();
+  }
+
+  async function handleLogout() { await logOut(); window.location.href = 'index.html'; }
+  document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+  document.getElementById('logoutBtnMobile').addEventListener('click', handleLogout);
+</script>
+</body>
+</html>

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teachers — Zolyn</title>
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="dashboard.css">
+<style>
+  .info-banner {
+    display: flex; gap: 12px; padding: 16px 18px;
+    background: var(--parchment-deep); border-radius: var(--radius-md);
+    margin-bottom: 24px; font-size: 0.85rem;
+  }
+  .info-banner .mark { color: var(--gold); font-weight: 700; flex-shrink: 0; }
+
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(18,37,62,0.45);
+    display: none; align-items: center; justify-content: center;
+    padding: 20px; z-index: 200;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal-box {
+    background: var(--white); border-radius: var(--radius-lg); padding: 28px 24px;
+    width: 100%; max-width: 420px; box-shadow: var(--shadow-elevated);
+  }
+  .modal-box h3 { font-size: 1.15rem; margin-bottom: 6px; }
+  .modal-box .modal-sub { font-size: 0.85rem; color: var(--slate); margin-bottom: 18px; }
+  .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+  .modal-actions .btn { flex: 1; }
+
+  .role-badge {
+    font-size: 0.72rem; font-weight: 700; padding: 3px 9px; border-radius: 100px;
+    text-transform: uppercase; letter-spacing: 0.03em;
+  }
+  .role-badge.teacher { background: var(--parchment-deep); color: var(--slate); }
+</style>
+</head>
+<body>
+<div class="dash-shell">
+  <aside class="dash-sidebar">
+    <div class="dash-brand"><div class="seal">Z</div><div class="dash-brand-name">Zolyn</div></div>
+    <nav class="dash-nav">
+      <a href="dashboard-school-admin.html">Overview</a>
+      <a href="dashboard-school-admin-profile.html">School profile</a>
+      <a href="dashboard-school-admin-students.html">Students</a>
+      <a href="dashboard-school-admin-teachers.html" class="active">Teachers</a>
+      <a href="dashboard-school-admin-teacher-admins.html">Teacher admins</a>
+      <a href="dashboard-school-admin-classes.html">Classes</a>
+      <a href="dashboard-school-admin-subjects.html">Subjects</a>
+      <a href="dashboard-school-admin-attendance.html">Attendance</a>
+      <a href="dashboard-school-admin-results.html">Results</a>
+      <a href="dashboard-school-admin-report-cards.html">Report cards</a>
+      <a href="dashboard-school-admin-pending-approvals.html">Pending requests</a>
+    </nav>
+    <div class="dash-user">
+      <div class="dash-user-name" id="sidebarUserName">—</div>
+      <div class="dash-user-role">School Admin</div>
+      <button class="dash-logout" id="logoutBtn">Log out</button>
+    </div>
+  </aside>
+
+  <main class="dash-main">
+    <div class="dash-topbar">
+      <div style="display:flex;align-items:center;gap:4px;">
+        <button class="menu-btn" id="mobileMenuBtn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg></button>
+        <button class="back-btn" id="backBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>Back</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div class="seal">Z</div>
+        <button class="dash-logout" id="logoutBtnMobile">Log out</button>
+      </div>
+    </div>
+
+    <div class="mobile-nav-overlay" id="mobileNavOverlay">
+      <div class="mobile-nav-panel">
+        <button class="mobile-nav-close" id="mobileNavClose"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+        <div class="dash-brand"><div class="seal">Z</div><div class="dash-brand-name">Zolyn</div></div>
+        <nav class="dash-nav">
+          <a href="dashboard-school-admin.html">Overview</a>
+          <a href="dashboard-school-admin-profile.html">School profile</a>
+          <a href="dashboard-school-admin-students.html">Students</a>
+          <a href="dashboard-school-admin-teachers.html">Teachers</a>
+          <a href="dashboard-school-admin-teacher-admins.html">Teacher admins</a>
+          <a href="dashboard-school-admin-classes.html">Classes</a>
+          <a href="dashboard-school-admin-subjects.html">Subjects</a>
+          <a href="dashboard-school-admin-attendance.html">Attendance</a>
+          <a href="dashboard-school-admin-results.html">Results</a>
+          <a href="dashboard-school-admin-report-cards.html">Report cards</a>
+          <a href="dashboard-school-admin-pending-approvals.html">Pending requests</a>
+        </nav>
+        <div class="dash-user">
+          <div class="dash-user-name" id="mobileSidebarUserName">—</div>
+          <div class="dash-user-role">School Admin</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dash-content">
+      <div class="dash-page-head">
+        <h1>Teachers</h1>
+        <p>Your school's active teaching staff.</p>
+      </div>
+
+      <div class="info-banner">
+        <span class="mark">ⓘ</span>
+        <span>New teachers join by signing up on Zolyn and requesting to join your school — check <a href="dashboard-school-admin-pending-approvals.html" style="color: var(--gold); font-weight: 600;">Pending requests</a> to approve them. Once approved, they'll appear here.</span>
+      </div>
+
+      <div class="card list-card">
+        <div id="teachersList">
+          <div class="empty-state">Loading…</div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Promote to Teacher Admin Modal -->
+<div class="modal-overlay" id="promoteModal">
+  <div class="modal-box">
+    <h3>Promote to Teacher Admin</h3>
+    <div class="modal-sub" id="promoteModalSub">Give this teacher administrative permissions.</div>
+    <form id="promoteForm">
+      <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:8px;" id="permissionsChecklist">
+        <!-- populated by JS -->
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" id="cancelPromoteBtn">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="savePromoteBtn">
+          <span class="btn-label">Promote</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+  import { requireRole } from './rbac.js';
+  import { logOut } from './auth.js';
+  import { supabase } from './supabaseClient.js';
+  import { wireBackButton } from './nav.js';
+  import { wireMobileNav } from './mobile-nav.js';
+  import { getSchoolStaff, setMemberRole, removeMember } from './membership.service.js';
+
+  const PERMISSION_OPTIONS = [
+    { key: 'manage_students', label: 'Manage students' },
+    { key: 'manage_teachers', label: 'Manage teachers' },
+    { key: 'manage_classes', label: 'Manage classes' },
+    { key: 'manage_subjects', label: 'Manage subjects' },
+    { key: 'enter_results', label: 'Enter results' },
+    { key: 'approve_results', label: 'Approve results' },
+    { key: 'generate_report_cards', label: 'Generate report cards' },
+    { key: 'manage_attendance', label: 'Manage attendance' },
+  ];
+
+  let mySchool = null;
+  let promotingMemberId = null;
+
+  function showToast(message, type = '') {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.className = 'toast show' + (type ? ' toast-' + type : '');
+    setTimeout(() => { toast.classList.remove('show'); }, 4000);
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function initials(name) {
+    return (name || '?').split(' ').filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+  }
+
+  (async () => {
+    const profile = await requireRole('school_admin');
+    if (!profile) return;
+
+    const { data: { user } } = await supabase.auth.getUser();
+    const { data: userProfile } = await supabase.from('user_profiles').select('full_name').eq('id', user.id).single();
+    document.getElementById('sidebarUserName').textContent = userProfile?.full_name || 'School Admin';
+    document.getElementById('mobileSidebarUserName').textContent = userProfile?.full_name || 'School Admin';
+    wireBackButton('backBtn', 'dashboard-school-admin.html');
+    wireMobileNav();
+
+    const membership = profile.memberships.find(m => m.role === 'school_admin');
+    mySchool = membership?.schools;
+
+    loadTeachers();
+  })();
+
+  async function loadTeachers() {
+    const listEl = document.getElementById('teachersList');
+    if (!mySchool) return;
+
+    const { staff, error } = await getSchoolStaff(mySchool.id);
+
+    if (error) {
+      listEl.innerHTML = `<div class="empty-state">Could not load teachers. Try refreshing.</div>`;
+      return;
+    }
+
+    const teachers = (staff || []).filter(m => m.role === 'teacher');
+
+    if (teachers.length === 0) {
+      listEl.innerHTML = `<div class="empty-state">No teachers yet. Approve join requests to add teachers here.</div>`;
+      return;
+    }
+
+    listEl.innerHTML = teachers.map(t => `
+      <div class="list-row" data-id="${t.id}">
+        <div class="list-row-avatar">${initials(t.user_profiles?.full_name)}</div>
+        <div class="list-row-info">
+          <h4>${escapeHtml(t.user_profiles?.full_name || 'Unnamed')}</h4>
+          <p>${escapeHtml(t.user_profiles?.phone || 'No phone on file')} <span class="role-badge teacher">Teacher</span></p>
+        </div>
+        <div class="list-row-actions">
+          <button class="btn btn-ghost promote-btn" data-id="${t.id}" data-name="${escapeHtml(t.user_profiles?.full_name || 'this teacher')}">Promote</button>
+          <button class="btn btn-ghost remove-btn" data-id="${t.id}" style="color: var(--alert);">Remove</button>
+        </div>
+      </div>
+    `).join('');
+
+    listEl.querySelectorAll('.promote-btn').forEach(btn => {
+      btn.addEventListener('click', () => openPromoteModal(btn.dataset.id, btn.dataset.name));
+    });
+    listEl.querySelectorAll('.remove-btn').forEach(btn => {
+      btn.addEventListener('click', () => handleRemove(btn.dataset.id));
+    });
+  }
+
+  function openPromoteModal(memberId, name) {
+    promotingMemberId = memberId;
+    document.getElementById('promoteModalSub').textContent = `Choose what ${name} will be able to manage as a Teacher Admin.`;
+
+    const checklistEl = document.getElementById('permissionsChecklist');
+    checklistEl.innerHTML = PERMISSION_OPTIONS.map(p => `
+      <label style="display:flex; align-items:center; gap:10px; font-size:0.9rem; cursor:pointer;">
+        <input type="checkbox" value="${p.key}" style="width:16px;height:16px;">
+        ${p.label}
+      </label>
+    `).join('');
+
+    document.getElementById('promoteModal').classList.add('show');
+  }
+
+  function closePromoteModal() {
+    document.getElementById('promoteModal').classList.remove('show');
+    promotingMemberId = null;
+  }
+
+  document.getElementById('cancelPromoteBtn').addEventListener('click', closePromoteModal);
+  document.getElementById('promoteModal').addEventListener('click', (e) => {
+    if (e.target.id === 'promoteModal') closePromoteModal();
+  });
+
+  document.getElementById('promoteForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const checked = Array.from(document.querySelectorAll('#permissionsChecklist input:checked')).map(cb => cb.value);
+    const permissions = Object.fromEntries(checked.map(key => [key, true]));
+
+    const btn = document.getElementById('savePromoteBtn');
+    btn.disabled = true;
+    btn.querySelector('.btn-label').textContent = 'Promoting…';
+
+    const { error } = await setMemberRole(promotingMemberId, 'teacher_admin', permissions);
+
+    btn.disabled = false;
+    btn.querySelector('.btn-label').textContent = 'Promote';
+
+    if (error) {
+      showToast(error.message || 'Could not promote this teacher.', 'error');
+      return;
+    }
+
+    showToast('Teacher promoted to Teacher Admin.', 'success');
+    closePromoteModal();
+    loadTeachers();
+  });
+
+  async function handleRemove(memberId) {
+    if (!confirm('Remove this teacher from your school? They will lose access immediately.')) return;
+
+    const { error } = await removeMember(memberId);
+    if (error) {
+      showToast(error.message || 'Could not remove this teacher.', 'error');
+      return;
+    }
+    showToast('Teacher removed.', 'success');
+    loadTeachers();
+  }
+
+  async function handleLogout() { await logOut(); window.location.href = 'index.html'; }
+  document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+  document.getElementById('logoutBtnMobile').addEventListener('click', handleLogout);
+</script>
+</body>
+</html>
